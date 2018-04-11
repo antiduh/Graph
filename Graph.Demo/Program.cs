@@ -6,17 +6,19 @@ using System.Windows.Forms;
 
 namespace Graph.Demo
 {
-    static class Program
+    public static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        public static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault( false );
-            Application.Run( new Form1() );
+            Dictionary<int, string> dict = new Dictionary<int, string>();
+
+            dict.Add( 0, "hello" );
+            dict.Add( 0, "hello" );
+            dict.Add( 0, "hello" );
         }
     }
 }
