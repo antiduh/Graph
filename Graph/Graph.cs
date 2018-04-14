@@ -307,13 +307,8 @@ namespace Graph
         {
             List<Link> outLinks;
 
-            // First, figure out whether its definitely missing.
-            if( knownMissing == false &&
-                this.nodeMap.TryGetValue( node, out outLinks ) )
-            {
-                return outLinks;
-            }
-            else
+            // If we know it's missing, or we can't find it, create a new one.
+            if( knownMissing || this.nodeMap.TryGetValue( node, out outLinks ) == false )
             {
                 outLinks = new List<Link>();
                 this.nodeMap.Add( node, outLinks );
