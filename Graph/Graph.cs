@@ -10,7 +10,12 @@ namespace Graph
     /// Stores a directed graph of objects using generics.
     /// </summary>
     /// <remarks>
-    /// Relationships between nodes are stored as a map of links with the starting node as the key to find the list of links.
+    /// Relationships between nodes are stored as a map of links with the starting node as the key to
+    /// find the list of links.
+    ///
+    /// Some operations in this class are classified as being 'open' or 'closed'. Open indicates that
+    /// the relationships between the nodes involved in the operation are not symmetric. Closed
+    /// indicates that the relationships between nodes involved in the operation are symmetric.
     /// </remarks>
     /// <typeparam name="TNode"></typeparam>
     /// <typeparam name="TLink"></typeparam>
@@ -22,13 +27,30 @@ namespace Graph
         private Func<TLink, int> costFunc;
 
         /// <summary>
-        /// Stores a map from a node to a list of that node's outgoing edges.
+        /// Stores a map from a node to a list of that node's outgoing links.
         /// </summary>
         /// <remarks>
-        /// Every node that is part of the graph is stored as a value in the nodeMap. Every node
-        /// always has a non-null link list. A node that has an empty link list is a disconnected node.
+        /// Every node that is part of the graph is stored as a value in the outlinkMap, always with
+        /// a non-null list.
+        ///
+        /// The outlinkMap and the inlinkMap objects shall always refer to the same set of nodes and
+        /// links. If A's outlinks contains a link from A to B, then B's inlinks contains the same
+        /// link object (from A, to B).
         /// </remarks>
-        private Dictionary<TNode, List<Link>> nodeMap;
+        private Dictionary<TNode, List<Link>> outlinkMap;
+
+        /// <summary>
+        /// Stores a map from a node to a list of that node's incoming links.
+        /// </summary>
+        /// <remarks>
+        /// Every node that is part of the graph is stored as a value in the inlinkMap, always with a
+        /// non-null list.
+        ///
+        /// The outlinkMap and the inlinkMap objects shall always refer to the same set of nodes and
+        /// links. If A's outlinks contains a link from A to B, then B's inlinks contains the same
+        /// link object (from A, to B).
+        /// </remarks>
+        private Dictionary<TNode, List<Link>> inlinkMap;
 
         /// <summary>
         /// Initializes a new instance of the Graph class.
@@ -38,7 +60,8 @@ namespace Graph
         {
             this.costFunc = costFunc;
 
-            this.nodeMap = new Dictionary<TNode, List<Link>>();
+            this.outlinkMap = new Dictionary<TNode, List<Link>>();
+            this.inlinkMap = new Dictionary<TNode, List<Link>>();
         }
 
         /// <summary>
@@ -47,7 +70,7 @@ namespace Graph
         /// <param name="node">The node to add to the graph.</param>
         public void AddNode( TNode node )
         {
-            if( this.nodeMap.ContainsKey( node ) )
+            if( this.outlinkMap.ContainsKey( node ) )
             {
                 throw new InvalidOperationException(
                     "The given node already exists in the graph."
@@ -70,25 +93,28 @@ namespace Graph
         public void AddLink( TNode start, TNode end, TLink linkData )
         {
             List<Link> startOutLinks;
+            List<Link> endInlinks;
+            Link newLink = new Link( start, end );
 
             // First, make sure both nodes exist in the graph.
-            startOutLinks = EnsureAdded( start, false );
-
+            EnsureAdded( start, false );
             EnsureAdded( end, false );
 
+            startOutLinks = GetOutlinks( start );
+            endInlinks = GetInLinks( end );
+
             // Next, verify the link does not already exist.
-
-            foreach( Link outLink in startOutLinks )
+            // - Note, we don't bother checking `endInlinks` because it will be symmetric with `startOutLinks`.
+            if( FindLink( startOutLinks, start, end ) >= 0 )
             {
-                if( outLink.LinkData.Equals( linkData ) )
-                {
-                    throw new InvalidOperationException(
-                        "Cannot add link between given nodes, a link already exists."
-                    );
-                }
+                throw new InvalidOperationException( "Cannot add link; link already exists." );
             }
+            
+            // Good to add it, so fill in the data and off we go.
+            newLink.LinkData = linkData;
 
-            startOutLinks.Add( new Link() { EndNode = end, LinkData = linkData } );
+            startOutLinks.Add( newLink );
+            endInlinks.Add( newLink );
         }
 
         /// <summary>
@@ -116,25 +142,12 @@ namespace Graph
         /// <param name="end"></param>
         public void RemoveLink( TNode start, TNode end )
         {
-            List<Link> outLinks = GetOutlinks( start );
-            int foundIndex = -1;
+            List<Link> startOutlinks = GetOutlinks( start );
+            List<Link> endInlinks = GetInLinks( end );
 
-            for( int i = 0; i < outLinks.Count; i++ )
-            {
-                if( outLinks[i].EndNode.Equals( end ) )
-                {
-                    foundIndex = -1;
-                    break;
-                }
-            }
-
-            if( foundIndex < 0 )
-            {
-                throw new InvalidOperationException( "Link not found." );
-            }
-
-            outLinks.RemoveAt( foundIndex );
+            RemoveLink_Prefetched( start, end, startOutlinks, endInlinks );
         }
+
 
         /// <summary>
         /// Modifies the data associated with the directed link from the start node to the end node.
@@ -144,7 +157,19 @@ namespace Graph
         /// <param name="linkData"></param>
         public void SetLink( TNode start, TNode end, TLink linkData )
         {
-            throw new NotImplementedException();
+            // The Link object stored in start's outlinks and in end's inlinks is the same object.
+            // We only need to update the object once, so find it through the startOutlinks.
+
+            List<Link> startOutlinks = GetOutlinks( start );
+
+            int index = FindLink( startOutlinks, start, end );
+
+            if( index < 0 )
+            {
+                throw new InvalidOperationException( "Cannot modify link; link does not exist." );
+            }
+
+            startOutlinks[index].LinkData = linkData;
         }
 
         /// <summary>
@@ -154,33 +179,29 @@ namespace Graph
         /// <param name="node"></param>
         public void Disconnect( TNode node )
         {
-            List<Link> outLinks = GetOutlinks( node );
-            
-            // Clear the outlinks from the node.
-            outLinks.Clear();
+            // Find all outlinks from this node, remove them.
+            // Find all inlinks to this node, remove them.
 
-            // Clear the inlinks to the node.
+            List<Link> nodeOutlinks = GetOutlinks( node );
+            List<Link> nodeInlinks = GetInLinks( node );
+            List<Link> colinks;
 
-            foreach( var otherNode in this.nodeMap.Keys )
+            for( int i = nodeOutlinks.Count - 1; i >= 0; i-- )
             {
-                if( otherNode.Equals( node ) )
-                {
-                    continue;
-                }
+                var link = nodeOutlinks[i];
 
-                outLinks = this.nodeMap[otherNode];
+                colinks = GetInLinks( link.EndNode );
 
-                for( int i = 0; i < outLinks.Count; /* conditional increment */ )
-                {
-                    if( outLinks[i].EndNode.Equals( node ) )
-                    {
-                        outLinks.RemoveAt( i );
-                    }
-                    else
-                    {
-                        i++;
-                    }
-                }
+                RemoveLink_Prefetched( node, link.EndNode, nodeOutlinks, colinks );
+            }
+
+            for( int i = nodeInlinks.Count - 1; i >= 0; i-- )
+            {
+                var link = nodeInlinks[i];
+
+                colinks = GetOutlinks( link.StartNode );
+
+                RemoveLink_Prefetched( link.StartNode, node, colinks, nodeInlinks );
             }
         }
 
@@ -189,9 +210,14 @@ namespace Graph
         /// </summary>
         public void DisconnectAll()
         {
-            foreach( var links in this.nodeMap.Values )
+            foreach( var linkList in this.outlinkMap.Values )
             {
-                links.Clear();
+                linkList.Clear();
+            }
+
+            foreach( var linkList in this.inlinkMap.Values )
+            {
+                linkList.Clear();
             }
         }
 
@@ -201,11 +227,10 @@ namespace Graph
         /// <param name="node"></param>
         public void Remove( TNode node )
         {
-            List<Link> outLinks = GetOutlinks( node );
-            
-            // Clear the links to be nice to the GC.
-            outLinks.Clear();
-            this.nodeMap.Remove( node );
+            Disconnect( node );
+
+            this.outlinkMap.Remove( node );
+            this.inlinkMap.Remove( node );
         }
 
         /// <summary>
@@ -216,32 +241,56 @@ namespace Graph
             // Be nice to the GC.
             DisconnectAll();
 
-            this.nodeMap.Clear();
+            this.outlinkMap.Clear();
+            this.inlinkMap.Clear();
         }
 
         /// <summary>
-        /// Returns a list of nodes that the given node has a bidirectional link to.
+        /// Returns a list of all directed links that originate at the given node.
+        /// </summary>
+        public List<Link> GetOutlinks( TNode node )
+        {
+            List<Link> outLinks;
+
+            if( this.outlinkMap.TryGetValue( node, out outLinks ) == false )
+            {
+                throw new InvalidOperationException( "The node is not part of the graph." );
+            }
+
+            return outLinks;
+        }
+
+        /// <summary>
+        /// Returns a list of all directed links that terminate at the given node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public List<Link> GetInLinks( TNode node )
+        {
+            List<Link> inlinks;
+
+            if( this.inlinkMap.TryGetValue( node, out inlinks ) == false )
+            {
+                throw new InvalidOperationException( "The node is not part of the graph." );
+            }
+
+            return inlinks;
+        }
+
+        public List<TNode> GetNodes()
+        {
+            return this.outlinkMap.Keys.ToList();
+        }
+
+
+        /// <summary>
+        /// Returns a list of nodes, with link data, that the given node has a bidirectional link to.
         /// </summary>
         public void GetNeighbors( TNode node)
         {
             throw new NotImplementedException();
         }
 
-        public List<Link> GetOutlinks( TNode node )
-        {
-            List<Link> outLinks;
-
-            if( this.nodeMap.TryGetValue( node, out outLinks ) == false )
-            {
-                throw new InvalidOperationException( "Node not found." );
-            }
-
-            return outLinks;
-        }
-
-        public void GetInLinks( TNode node )
-        {
-        }
 
         /// <summary>
         /// Returns the list of nodes such that every node in the list can be reached from the given
@@ -251,12 +300,7 @@ namespace Graph
         {
             throw new NotImplementedException();
         }
-
-        public void GetNodes()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public void GetShortestPath()
         {
             throw new NotImplementedException();
@@ -303,18 +347,56 @@ namespace Graph
         /// True to indicate that checks have already occured to determine that the node does not
         /// exist in the graph.
         /// </param>
-        private List<Link> EnsureAdded( TNode node, bool knownMissing )
+        private void EnsureAdded( TNode node, bool knownMissing )
         {
             List<Link> outLinks;
+            List<Link> inlinks;
 
             // If we know it's missing, or we can't find it, create a new one.
-            if( knownMissing || this.nodeMap.TryGetValue( node, out outLinks ) == false )
+            if( knownMissing || this.outlinkMap.TryGetValue( node, out outLinks ) == false )
             {
                 outLinks = new List<Link>();
-                this.nodeMap.Add( node, outLinks );
+                this.outlinkMap.Add( node, outLinks );
+
+                inlinks = new List<Link>();
+                this.inlinkMap.Add( node, inlinks );
+            }
+        }
+
+        private int FindLink( List<Link> links, TNode start, TNode end )
+        {
+            for( int i = 0; i < links.Count; i++ )
+            {
+                if( links[i].EqualEndpoints( start, end ) )
+                {
+                    return i;
+                }
             }
 
-            return outLinks;
+            return -1;
+        }
+
+        private void RemoveLink_Prefetched( TNode start, TNode end, List<Link> startOutlinks, List<Link> endInlinks )
+        {
+            int index = FindLink( startOutlinks, start, end );
+
+            if( index < 0 )
+            {
+                throw new InvalidOperationException( "Cannot remove link; link does not exist." );
+            }
+
+            startOutlinks.RemoveAt( index );
+
+            index = FindLink( endInlinks, start, end );
+
+            if( index < 0 )
+            {
+                // This should never happen unless there is a bug in the class, the hardware has gone
+                // sideways, or the class is being misued via threading.
+                throw new InvalidOperationException( "Graph internal state is corrupted." );
+            }
+
+            endInlinks.RemoveAt( index );
         }
     }
 }
