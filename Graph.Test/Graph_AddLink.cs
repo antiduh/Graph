@@ -18,6 +18,8 @@ namespace Graph.Tests
             Assert.AreEqual( 0, graph.GetInLinks( 0 ).Count );
             Assert.AreEqual( 0, graph.GetOutlinks( 1 ).Count );
             Assert.AreEqual( 1, graph.GetInLinks( 1 ).Count );
+
+            Assert.AreEqual( 42, graph.GetLinkData( 0, 1 ) );
         }
 
         [TestMethod]
@@ -27,8 +29,7 @@ namespace Graph.Tests
 
             graph.AddLink( 0, 1, 42 );
 
-            Assert.AreEqual( 42, graph.GetOutlinks( 0 )[0].LinkData );
-            Assert.AreEqual( 42, graph.GetInLinks( 1 )[0].LinkData );
+            Assert.AreEqual( 42, graph.GetLinkData( 0, 1 ) );
         }
 
         /// <summary>
@@ -82,6 +83,8 @@ namespace Graph.Tests
 
             Assert2.Throws<InvalidOperationException>( () => graph.AddLink( 0, 1, 1 ) );
             Assert2.Throws<InvalidOperationException>( () => graph.AddLink( 0, 1, 2 ) );
+
+            Assert.AreEqual( 1, graph.GetLinkData( 0, 1 ) );
         }
     }
 }
