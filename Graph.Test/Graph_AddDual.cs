@@ -11,6 +11,20 @@ namespace Graph.Tests
     [TestClass]
     public class Graph_AddDual
     {
+        [TestMethod]
+        public void Graph_AddDual_AddsTwoLinks()
+        {
+            var graph = new Graph<int, int>( x => x );
+
+            graph.AddDual( 0, 1, 42 );
+
+            Assert.AreEqual( 1, graph.GetOutlinks( 0 ).Count );
+            Assert.AreEqual( 1, graph.GetInLinks( 0 ).Count );
+
+            Assert.AreEqual( 1, graph.GetOutlinks( 1 ).Count );
+            Assert.AreEqual( 1, graph.GetInLinks( 1 ).Count );
+        }
+
         /// <summary>
         /// Verifies that adding a bidi link with unknown nodes causes the nodes to be added.
         /// </summary>
