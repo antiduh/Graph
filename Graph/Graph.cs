@@ -14,15 +14,15 @@ namespace Graph
     /// find the list of links.
     ///
     /// Some operations in this class are classified as being 'open' or 'closed'. Open indicates that
-    /// the relationships between the nodes involved in the operation are not symmetric. Closed
-    /// indicates that the relationships between nodes involved in the operation are symmetric.
+    /// the relationships between the nodes involved in the operation are not symmetric, where closed
+    /// indicates that the relationship is symmetric.
     /// </remarks>
-    /// <typeparam name="TNode"></typeparam>
-    /// <typeparam name="TLink"></typeparam>
+    /// <typeparam name="TNode">The type of nodes.</typeparam>
+    /// <typeparam name="TLink">The type of links.</typeparam>
     public partial class Graph<TNode, TLink>
     {
         /// <summary>
-        /// Stores the user-provided function that evaluates the cost of an edge.
+        /// Stores the user-provided function that evaluates the cost of a link.
         /// </summary>
         private Func<TLink, int> costFunc;
 
@@ -81,7 +81,7 @@ namespace Graph
         }
 
         /// <summary>
-        /// Adds a directed link between the two nodes.
+        /// Adds a directed link starting from the start node, ending at the end node.
         /// </summary>
         /// <remarks>
         /// If either node does not already exist in the graph, then the nodes will be added to the graph
@@ -118,13 +118,13 @@ namespace Graph
         }
 
         /// <summary>
-        /// Adds a directed link from <paramref name="left"/> to <paramref name="right"/>, and
-        /// a directed link from <paramref name="right"/> to <paramref name="left"/>,
-        /// effectively creating a bidirectional link.
+        /// Adds a directed link from <paramref name="left"/> to <paramref name="right"/>, and a
+        /// directed link from <paramref name="right"/> to <paramref name="left"/>, effectively
+        /// creating a bidirectional link.
         /// </summary>
         /// <remarks>
-        /// If either node does not already exist in the graph, then the nodes will be added to graph
-        /// as necessary.
+        /// If either node does not already exist in the graph, then the nodes will be added to the
+        /// graph as necessary.
         /// </remarks>
         /// <param name="left"></param>
         /// <param name="right"></param>
@@ -161,7 +161,7 @@ namespace Graph
         }
 
         /// <summary>
-        /// Removes the link from the start node to the end node.
+        /// Removes the link from the graph identified by the start node to the end node.
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
@@ -173,6 +173,37 @@ namespace Graph
             RemoveLink_Prefetched( start, end, startOutlinks, endInlinks );
         }
 
+        public TLink GetLinkData( TNode start, TNode end )
+        {
+            var startOutlinks = GetOutlinks( start );
+            var endInlinks = GetInLinks( end );
+
+            var link = startOutlinks.Intersect( endInlinks ).FirstOrDefault();
+
+            if( link == null )
+            {
+                throw new InvalidOperationException( "No such link exists." );
+            }
+
+            return link.LinkData;
+        }
+
+        public bool TryGetLinkData( TNode start, TNode end, out TLink linkData )
+        {
+            var startOutlinks = GetOutlinks( start );
+            var endInlinks = GetInLinks( end );
+
+            var link = startOutlinks.Intersect( endInlinks ).FirstOrDefault();
+
+            if( link == null )
+            {
+                linkData = default( TLink );
+                return false;
+            }
+
+            linkData = link.LinkData;
+            return true;
+        }
 
         /// <summary>
         /// Modifies the data associated with the directed link from the start node to the end node.
