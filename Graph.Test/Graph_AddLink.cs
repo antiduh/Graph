@@ -20,6 +20,17 @@ namespace Graph.Tests
             Assert.AreEqual( 1, graph.GetInLinks( 1 ).Count );
         }
 
+        [TestMethod]
+        public void Graph_AddLink_SetsLinkData()
+        {
+            var graph = new Graph<int, int>( x => x );
+
+            graph.AddLink( 0, 1, 42 );
+
+            Assert.AreEqual( 42, graph.GetOutlinks( 0 )[0].LinkData );
+            Assert.AreEqual( 42, graph.GetInLinks( 1 )[0].LinkData );
+        }
+
         /// <summary>
         /// Verifies that adding a link with unknown nodes causes the nodes to be added.
         /// </summary>
