@@ -161,10 +161,11 @@ namespace Graph
         }
 
         /// <summary>
-        /// Removes the link from the graph identified by the start node to the end node.
+        /// Removes the link from the graph identified by the <paramref name="start"/> node to the
+        /// <paramref name="end"/> node.
         /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
+        /// <param name="start">The node that the link begins at.</param>
+        /// <param name="end">The node that the link ends at.</param>
         public void RemoveLink( TNode start, TNode end )
         {
             List<Link> startOutlinks = GetOutlinks( start );
@@ -173,6 +174,14 @@ namespace Graph
             RemoveLink_Prefetched( start, end, startOutlinks, endInlinks );
         }
 
+        /// <summary>
+        /// Returns the data for the link that starts with the given <paramref name="start"/> node
+        /// and ends with the given <paramref name="end"/> node.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If the link does not exist.</exception>
+        /// <param name="start">The node that the link begins at.</param>
+        /// <param name="end">The node that the link ends at.</param>
+        /// <returns>The link's data.</returns>
         public TLink GetLinkData( TNode start, TNode end )
         {
             var startOutlinks = GetOutlinks( start );
@@ -188,6 +197,14 @@ namespace Graph
             return link.LinkData;
         }
 
+        /// <summary>
+        /// Returns the data for the link that starts with the given <paramref name="start"/> node
+        /// and ends with the given <paramref name="end"/> node.
+        /// </summary>
+        /// <param name="start">The node that the link begins at.</param>
+        /// <param name="end">The node that the link ends at.</param>
+        /// <param name="linkData">Returns the link's data, if found.</param>
+        /// <returns>True if the link could be found.</returns>
         public bool TryGetLinkData( TNode start, TNode end, out TLink linkData )
         {
             var startOutlinks = GetOutlinks( start );
