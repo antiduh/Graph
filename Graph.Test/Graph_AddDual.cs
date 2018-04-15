@@ -63,19 +63,26 @@ namespace Graph.Tests
         {
             var graph = new Graph<int, int>( x => x );
 
+            Action validation = () =>
+            {
+                Assert.AreEqual( 2, graph.GetNodes().Count );
+
+                Assert.AreEqual( 1, graph.GetOutlinks( 0 ).Count );
+                Assert.AreEqual( 0, graph.GetInLinks( 0 ).Count );
+                Assert.AreEqual( 0, graph.GetOutlinks( 1 ).Count );
+                Assert.AreEqual( 1, graph.GetInLinks( 1 ).Count );
+            };
+
             // Create one directed link that'll conflict with the bidi links in the next steps.
             graph.AddLink( 0, 1, 1 );
-            
+
+            validation();
+
             // Verify that we get an exception during add
             Assert2.Throws<InvalidOperationException>( () => graph.AddDual( 0, 1, 1 ) );
 
             // Verify that the graph is completely unchanged.
-            Assert.AreEqual( 2, graph.GetNodes().Count );
-
-            Assert.AreEqual( 1, graph.GetOutlinks( 0 ).Count );
-            Assert.AreEqual( 0, graph.GetInLinks( 0 ).Count );
-            Assert.AreEqual( 0, graph.GetOutlinks( 1 ).Count );
-            Assert.AreEqual( 1, graph.GetInLinks( 1 ).Count );
+            validation();
         }
 
 
@@ -89,19 +96,26 @@ namespace Graph.Tests
         {
             var graph = new Graph<int, int>( x => x );
 
+            Action validation = () =>
+            {
+                Assert.AreEqual( 2, graph.GetNodes().Count );
+
+                Assert.AreEqual( 1, graph.GetOutlinks( 1 ).Count );
+                Assert.AreEqual( 0, graph.GetInLinks( 1 ).Count );
+                Assert.AreEqual( 0, graph.GetOutlinks( 0 ).Count );
+                Assert.AreEqual( 1, graph.GetInLinks( 0 ).Count );
+            };
+
             // Create one directed link that'll conflict with the bidi links in the next steps.
             graph.AddLink( 1, 0, 1 );
-            
+
+            validation();
+
             // Verify that we get an exception during add
             Assert2.Throws<InvalidOperationException>( () => graph.AddDual( 0, 1, 1 ) );
 
             // Verify that the graph is completely unchanged.
-            Assert.AreEqual( 2, graph.GetNodes().Count );
-
-            Assert.AreEqual( 1, graph.GetOutlinks( 1 ).Count );
-            Assert.AreEqual( 0, graph.GetInLinks( 1 ).Count );
-            Assert.AreEqual( 0, graph.GetOutlinks( 0 ).Count );
-            Assert.AreEqual( 1, graph.GetInLinks( 0 ).Count );
+            validation();
         }
     }
 }
