@@ -94,7 +94,6 @@ namespace Graph
         {
             List<Link> startOutLinks;
             List<Link> endInlinks;
-            Link newLink = new Link( start, end );
 
             // First, make sure both nodes exist in the graph.
             EnsureAdded( start, false );
@@ -111,6 +110,7 @@ namespace Graph
             }
             
             // Good to add it, so fill in the data and off we go.
+            Link newLink = new Link( start, end );
             newLink.LinkData = linkData;
 
             startOutLinks.Add( newLink );
@@ -131,8 +131,33 @@ namespace Graph
         /// <param name="linkData"></param>
         public void AddDual( TNode left, TNode right, TLink linkData )
         {
-            AddLink( left, right, linkData );
-            AddLink( right, left, linkData );
+            EnsureAdded( left, false );
+            EnsureAdded( right, false );
+
+            var leftOuts = GetOutlinks( left );
+            var leftIns = GetInLinks( left );
+            var rightOuts = GetOutlinks( right );
+            var rightIns = GetInLinks( right );
+
+            if( FindLink( leftOuts, left, right ) >= 0 ||
+                FindLink( rightIns, left, right ) >= 0 ||
+                FindLink( rightOuts, right, left ) >= 0 ||
+                FindLink( rightIns, right, left ) >= 0  )
+            {
+                throw new InvalidOperationException( "Cannot add link; link already exists." );
+            }
+
+            Link leftToRightLink = new Link( left, right );
+            leftToRightLink.LinkData = linkData;
+
+            leftOuts.Add( leftToRightLink );
+            rightIns.Add( leftToRightLink );
+
+            Link rightToLeftLink = new Link( right, left );
+            rightToLeftLink.LinkData = linkData;
+
+            rightOuts.Add( rightToLeftLink );
+            leftIns.Add( rightToLeftLink );
         }
 
         /// <summary>
