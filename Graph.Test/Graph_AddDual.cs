@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Graph.Tests.Harness;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -112,7 +108,6 @@ namespace Graph.Tests
             // Verify that the graph is completely unchanged.
             validation();
         }
-
 
         /// <summary>
         /// Verifies that AddDual will not add any links until it has verified that both links will

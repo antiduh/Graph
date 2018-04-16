@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Graph.Tests.Harness;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,10 +16,10 @@ namespace Graph.Tests
 
             // Wrong end node.
             Assert2.Throws<InvalidOperationException>( () => graph.GetLinkData( 0, 2 ) );
-            
+
             // Wrong start node.
             Assert2.Throws<InvalidOperationException>( () => graph.GetLinkData( 2, 1 ) );
-            
+
             // Wrong both nodes.
             Assert2.Throws<InvalidOperationException>( () => graph.GetLinkData( 1, 2 ) );
 
