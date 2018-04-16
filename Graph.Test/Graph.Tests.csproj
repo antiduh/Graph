@@ -66,6 +66,7 @@
     <Compile Include="Graph_RemoveAll.cs" />
     <Compile Include="Graph_GetNeighbors.cs" />
     <Compile Include="Graph_RemoveLink.cs" />
+    <Compile Include="Graph_LoopbackScenarios.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Graph\Graph.csproj">
