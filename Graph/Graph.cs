@@ -350,18 +350,39 @@ namespace Graph
             return inlinks;
         }
 
+        /// <summary>
+        /// Returns a list of the nodes that exist in the graph.
+        /// </summary>
+        /// <returns></returns>
         public List<TNode> GetNodes()
         {
             return this.outlinkMap.Keys.ToList();
         }
 
-
         /// <summary>
-        /// Returns a list of nodes, with link data, that the given node has a bidirectional link to.
+        /// Returns a list of nodes that the given node has a bidirectional link to.
         /// </summary>
-        public void GetNeighbors( TNode node)
+        public List<TNode> GetNeighbors( TNode node )
         {
-            throw new NotImplementedException();
+            List<TNode> neighbors = new List<TNode>();
+
+            var outlinks = GetOutlinks( node );
+
+            foreach( var outlink in outlinks )
+            {
+                // We have a link from node --> peer.
+                // Verify we have a link peer --> node.
+
+                var peer = outlink.EndNode;
+                var peerInlinks = GetInLinks( peer );
+
+                if( FindLink( peerInlinks, peer, node ) >= 0 )
+                {
+                    neighbors.Add( peer );
+                }
+            }
+
+            return neighbors;
         }
 
 
