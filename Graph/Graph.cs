@@ -376,7 +376,7 @@ namespace Graph
                 var peer = outlink.EndNode;
                 var peerInlinks = GetInLinks( peer );
 
-                if( FindLink( peerInlinks, peer, node ) >= 0 )
+                if( FindLink( peerInlinks, node, peer ) >= 0 )
                 {
                     neighbors.Add( peer );
                 }
