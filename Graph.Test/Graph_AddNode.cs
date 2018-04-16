@@ -8,7 +8,7 @@ namespace Graph.Tests
     public class Graph_AddNode
     {
         [TestMethod]
-        public void Graph_Adds_ManyNodes()
+        public void Graph_AddNodes_ManyNodes()
         {
             int count = 1000;
             var graph = new Graph<int, int>( x => x );
@@ -22,7 +22,7 @@ namespace Graph.Tests
         }
 
         [TestMethod]
-        public void Graph_Rejects_DuplicateNodes()
+        public void Graph_AddNodes_Rejects_DuplicateNodes()
         {
             var graph = new Graph<int, int>( x => x );
 
