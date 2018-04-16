@@ -1,5 +1,4 @@
 ﻿using System;
-using Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Graph.Tests
