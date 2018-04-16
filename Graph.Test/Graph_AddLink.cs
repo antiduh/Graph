@@ -86,5 +86,30 @@ namespace Graph.Tests
 
             Assert.AreEqual( 1, graph.GetLinkData( 0, 1 ) );
         }
+
+        /// <summary>
+        /// Verifies that adding a link to the graph after explicitly declaring the nodes, instead of
+        /// letting AddLink create them, works.
+        /// </summary>
+        [TestMethod]
+        public void Graph_AddLink_AfterExplictAddNode()
+        {
+            var graph = new Graph<int, int>( x => x );
+
+            graph.AddNode( 0 );
+            graph.AddNode( 1 );
+
+            // Both nodes exist
+            graph.AddLink( 0, 1, 10 );
+            Assert.AreEqual(10, graph.GetLinkData( 0, 1 ) );
+
+            // Only the start node exists
+            graph.AddLink( 1, 2, 20 );
+            Assert.AreEqual( 20, graph.GetLinkData( 1, 2 ) );
+
+            // Only the end node exists.
+            graph.AddLink( 3, 1, 30 );
+            Assert.AreEqual( 30, graph.GetLinkData( 3, 1 ) );
+        }
     }
 }
