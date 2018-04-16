@@ -76,5 +76,46 @@ namespace Graph.Tests
                 Assert.AreEqual( i, graph.GetLinkData( 0, 1 ) );
             }
         }
+
+        [TestMethod]
+        public void Graph_TryGetLink_Rejects_UnknownNode()
+        {
+            var graph = new Graph<int, int>( x => x );
+            int data;
+
+            graph.AddLink( 0, 1, 10 );
+
+            Assert2.Throws<InvalidOperationException>( () => graph.TryGetLinkData( 0, 2, out data ) );
+            Assert2.Throws<InvalidOperationException>( () => graph.TryGetLinkData( 2, 0, out data ) );
+            Assert2.Throws<InvalidOperationException>( () => graph.TryGetLinkData( 2, 3, out data ) );
+        }
+
+        [TestMethod]
+        public void Graph_TryGetLink_Exists()
+        {
+            var graph = new Graph<int, int>( x => x );
+
+            graph.AddLink( 0, 1, 10 );
+
+            int data;
+            bool result = graph.TryGetLinkData( 0, 1, out data );
+
+            Assert.IsTrue( result );
+            Assert.AreEqual( 10, data );
+        }
+
+        [TestMethod]
+        public void Graph_TryGetLink_LinkDoesNotExist()
+        {
+            var graph = new Graph<int, int>( x => x );
+            int data;
+
+            graph.AddLink( 0, 2, 10 );
+            graph.AddLink( 1, 2, 10 );
+
+            bool result = graph.TryGetLinkData( 0, 1, out data );
+
+            Assert.IsFalse( result );
+        }
     }
 }

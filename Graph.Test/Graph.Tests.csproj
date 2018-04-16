@@ -61,6 +61,10 @@
     <Compile Include="Graph_AddNode.cs" />
     <Compile Include="Graph_AddLink.cs" />
     <Compile Include="Graph_Remove.cs" />
+    <Compile Include="Graph_SetLink.cs" />
+    <Compile Include="Graph_DisconnectAll.cs" />
+    <Compile Include="Graph_RemoveAll.cs" />
+    <Compile Include="Graph_GetNeighbors.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Graph\Graph.csproj">
