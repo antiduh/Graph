@@ -56,7 +56,7 @@ namespace Graph.Tests
         /// Verifies that duplicate links are not allowed.
         /// </summary>
         [TestMethod]
-        public void Graph_AddDual_Rejects_DuplicateLinks_SameCost()
+        public void Graph_AddDual_Rejects_DuplicateLinks()
         {
             var graph = new Graph<int, int>( x => x );
 
