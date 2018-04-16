@@ -76,6 +76,15 @@ namespace Graph
             {
                 return this.StartNode.GetHashCode() * 19 + this.EndNode.GetHashCode() * 7703;
             }
+
+            /// <summary>
+            /// Returns a simple string representing the link.
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                return string.Format( "{0} ---{1}---> {2}", this.StartNode, this.LinkData, this.EndNode );
+            }
         }
     }
 }
