@@ -23,6 +23,9 @@ namespace Graph.Tests
 
             Assert.AreEqual( 1, graph.GetOutlinks( 1 ).Count );
             Assert.AreEqual( 1, graph.GetInLinks( 1 ).Count );
+
+            Assert.AreEqual( 42, graph.GetLinkData( 0, 1 ) );
+            Assert.AreEqual( 42, graph.GetLinkData( 1, 0 ) );
         }
 
         [TestMethod]
@@ -32,10 +35,8 @@ namespace Graph.Tests
 
             graph.AddDual( 0, 1, 42 );
 
-            Assert.AreEqual( 42, graph.GetOutlinks( 0 )[0].LinkData );
-            Assert.AreEqual( 42, graph.GetInLinks( 0 )[0].LinkData );
-            Assert.AreEqual( 42, graph.GetOutlinks( 1 )[0].LinkData );
-            Assert.AreEqual( 42, graph.GetInLinks( 1 )[0].LinkData );
+            Assert.AreEqual( 42, graph.GetLinkData( 0, 1 ) );
+            Assert.AreEqual( 42, graph.GetLinkData( 1, 0 ) );
         }
 
         /// <summary>
