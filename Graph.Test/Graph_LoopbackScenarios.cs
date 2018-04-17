@@ -267,7 +267,19 @@ namespace Graph.Tests
         [TestMethod]
         public void Graph_GetNeighbors_IgnoresLoopbacks()
         {
-            throw new NotImplementedException();
+            var graph = new Graph<int, int>( x => x );
+
+            graph.AddLink( 0, 0, 10 );
+            graph.AddDual( 0, 5, 20 );
+
+            var zerosNeighbors = graph.GetNeighbors( 0 );
+            var fivesNeighbors = graph.GetNeighbors( 5 );
+
+            Assert.AreEqual( 1, zerosNeighbors.Count );
+            Assert.AreEqual( 5, zerosNeighbors[0] );
+
+            Assert.AreEqual( 1, fivesNeighbors.Count );
+            Assert.AreEqual( 0, fivesNeighbors[0] );
         }
     }
 }

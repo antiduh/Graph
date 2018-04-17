@@ -131,6 +131,11 @@ namespace Graph
         /// <param name="linkData"></param>
         public void AddDual( TNode left, TNode right, TLink linkData )
         {
+            if( left.Equals( right ) )
+            {
+                throw new InvalidOperationException( "Cannot add bidirectional loopback links." );
+            }
+
             EnsureAdded( left, false );
             EnsureAdded( right, false );
 
@@ -374,6 +379,13 @@ namespace Graph
                 // Verify we have a link peer --> node.
 
                 var peer = outlink.EndNode;
+
+                if( peer.Equals( node ) )
+                {
+                    // Ignore loopback links.
+                    continue; 
+                }
+
                 var peerOutlinks = GetOutlinks( peer );
 
                 if( FindLink( peerOutlinks, peer, node ) >= 0 )
