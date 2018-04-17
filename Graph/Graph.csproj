@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Graph.cs" />
     <Compile Include="Graph.Link.cs" />
+    <Compile Include="GraphMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
