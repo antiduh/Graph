@@ -400,13 +400,89 @@ namespace Graph
 
         /// <summary>
         /// Returns the list of nodes such that every node in the list can be reached from the given
-        /// node by traversing only bidirectional links.
+        /// starting node by traversing only bidirectional links. The network contains the starting node.
         /// </summary>
-        public void GetNetwork( TNode node )
+        /// <remarks>
+        /// The word 'closed' here means that startingNode's network contain nodes, where those nodes
+        /// must have startingNode in their own network, as well as every other node in
+        /// startingNode's network. The result is that asking for the network from any such node
+        /// returns the same list of nodes.
+        ///
+        /// For example, if GetClosedNetwork(Node1) returns {Node1, Node2, Node3}, then
+        /// GetClosedNetwork(Node2) would return the same list, and again for Node3.
+        ///
+        /// Contrast with <see cref="GetOpenNetwork(TNode)"/>, where the only criteria for inclusion
+        /// in startingNodes's open network is that there exists a path (and not necessarily a bidi
+        /// path) from startingNode to every returned node.
+        ///
+        /// If NodeX's open network contained NodeY, but NodeY has only in-links and no out-links,
+        /// then NodeY's open network will be empty, even though NodeY is in NodeX's open network.
+        /// </remarks>
+        public List<TNode> GetClosedNetwork( TNode startingNode )
         {
-            throw new NotImplementedException();
+            HashSet<TNode> seen = new HashSet<TNode>();
+            Queue<TNode> leads = new Queue<TNode>();
+            List<TNode> neighbors;
+
+            leads.Enqueue( startingNode );
+            seen.Add( startingNode );
+
+            while( leads.Count > 0 )
+            {
+                var lead = leads.Dequeue();
+
+                neighbors = GetNeighbors( lead );
+
+                foreach( TNode neighbor in neighbors )
+                {
+                    if( seen.Add( neighbor ) )
+                    {
+                        leads.Enqueue( neighbor );
+                    }
+                }
+            }
+
+            return seen.ToList();
         }
-        
+
+        /// <summary>
+        /// Returns the list of nodes such that every node in the list can be reached from the given
+        /// starting node by traversing any kind of link, including undirectional links. The network
+        /// contains the starting node.
+        /// </summary>
+        /// <remarks>
+        /// The word 'open' here means that startingNode's network may contain nodes, where those
+        /// nodes might not have startingNode in their own network.
+        /// 
+        /// This results from the inclusion of nodes that were reached through only unidirectional links.
+        /// </remarks>
+        public List<TNode> GetOpenNetwork( TNode startingNode )
+        {
+            HashSet<TNode> seen = new HashSet<TNode>();
+            Queue<TNode> leads = new Queue<TNode>();
+            List<Link> outlinks;
+
+            leads.Enqueue( startingNode );
+            seen.Add( startingNode );
+
+            while( leads.Count > 0 )
+            {
+                var lead = leads.Dequeue();
+
+                outlinks = GetOutlinks( lead );
+
+                foreach( var outlink in outlinks )
+                {
+                    if( seen.Add( outlink.EndNode ) )
+                    {
+                        leads.Enqueue( outlink.EndNode );
+                    }
+                }
+            }
+
+            return seen.ToList();
+        }
+
         public void GetShortestPath()
         {
             throw new NotImplementedException();
