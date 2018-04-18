@@ -483,9 +483,140 @@ namespace Graph
             return seen.ToList();
         }
 
-        public void GetShortestPath()
+        public bool GetShortestPath( TNode start, TNode end, out List<TNode> path, out int cost )
         {
-            throw new NotImplementedException();
+            // Nodes are referred to by their node index in this implementation.
+            // Node i is the node returned by nodes[i].
+
+            // The list of all known nodes.
+            List<TNode> nodes = GetNodes();
+
+            // The distance from the start node to node i. 
+            int[] dist = new int[nodes.Count];
+
+            // prev[i] stores the node index that is previous to node i in a potential shortest path.
+            int[] prev = new int[nodes.Count];
+
+            // Stores the nodes that have not been visited.
+            HashSet<int> unvisited = new HashSet<int>();
+
+            // The node index of the terminal nodes.
+            int startIndex = nodes.IndexOf( start );
+            int endIndex = nodes.IndexOf( end );
+
+            bool found = false;
+
+            if( startIndex == -1 )
+            {
+                throw new InvalidOperationException( "Node not in graph: " + start );
+            }
+
+            if( endIndex == -1 )
+            {
+                throw new InvalidOperationException( "Node not in graph: " + end );
+            }
+
+            // Initialization:
+            // - Set distance to all ndoes to infinite, except starting node.
+            // - The start node has zero cost to itself.
+
+            for( int i = 0; i < nodes.Count; i++ )
+            {
+                if( nodes[i].Equals( start ) )
+                {
+                    dist[i] = 0;
+                }
+                else
+                {
+                    dist[i] = int.MaxValue;
+                }
+
+                prev[i] = -1;
+
+                unvisited.Add( i );
+            }
+
+            while( unvisited.Count > 0 )
+            {
+                // Find the unvisted node with the lowest distance.
+
+                int bestDistance = int.MaxValue;
+                int currentNode = -1;
+
+                foreach( int index in unvisited )
+                {
+                    if( dist[index] <= bestDistance )
+                    {
+                        bestDistance = dist[index];
+                        currentNode = index;
+                    }
+                }
+
+                if( currentNode == endIndex )
+                {
+                    // The lowest cost is the target.
+                    // - Check to see if lowest cost is our infinite cost. If so, we failed.
+                    found = ( bestDistance < int.MaxValue );
+                    break;
+                }
+
+                unvisited.Remove( currentNode );
+
+                var currentOutlinks = GetOutlinks( nodes[currentNode] );
+
+                foreach( var outlink in currentOutlinks )
+                {
+                    // neighbor of currentNode.
+                    int neighbor = nodes.IndexOf( outlink.EndNode );
+
+                    if( unvisited.Contains( neighbor ) == false ) { continue; }
+
+                    int newDistance = dist[currentNode] + this.costFunc( outlink.LinkData );
+
+                    if( newDistance < dist[neighbor] )
+                    {
+                        dist[neighbor] = newDistance;
+                        prev[neighbor] = currentNode;
+                    }
+                }
+            }
+
+            if( found == false )
+            {
+                path = null;
+                cost = -1;
+                return false;
+            }
+            else
+            {
+                // Let's say the path was 0 --> 1 --> 2. Then:
+                // - prev[2] == 1
+                // - prev[1] == 0
+                // - prev[0] == -1 (has no predecessor).
+
+                // So, we'll use a stack to unwind into a pretty list.
+
+                Stack<int> stack = new Stack<int>();
+
+                int tail = endIndex;
+
+                while( tail != -1 )
+                {
+                    stack.Push( tail );
+                    tail = prev[tail];
+                }
+
+                List<TNode> results = new List<TNode>( stack.Count );
+
+                while( stack.Count > 0 )
+                {
+                    results.Add( nodes[stack.Pop()] );
+                }
+
+                path = results;
+                cost = dist[endIndex];
+                return true;
+            }
         }
 
         public void Clone()
