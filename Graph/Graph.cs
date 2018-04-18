@@ -446,15 +446,15 @@ namespace Graph
         }
 
         /// <summary>
-        /// Returns the list of nodes such that every node in the list can be reached from the given
-        /// starting node by traversing any kind of link, including undirectional links. The network
-        /// contains the starting node.
+        /// Returns the list of nodes that can be reached from the given starting node by traversing
+        /// any kind of link, including undirectional links. The network contains the starting node.
         /// </summary>
         /// <remarks>
         /// The word 'open' here means that startingNode's network may contain nodes, where those
-        /// nodes might not have startingNode in their own network.
-        /// 
-        /// This results from the inclusion of nodes that were reached through only unidirectional links.
+        /// nodes might not have startingNode in their own open network.
+        ///
+        /// As an example, if there is a path from A to B, but no path from B to A, then A's open
+        /// network will contain B, but B's open network will not contain A.
         /// </remarks>
         public List<TNode> GetOpenNetwork( TNode startingNode )
         {
