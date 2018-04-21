@@ -55,6 +55,25 @@ namespace Graph
             }
         }
 
+        /// <summary>
+        /// Creates a graph where the sequentially connected to each other using directed links; the
+        /// first node is connected to the second node, the second to the third, and so on.
+        /// </summary>
+        /// <typeparam name="TNode"></typeparam>
+        /// <typeparam name="TLink"></typeparam>
+        /// <param name="graph"></param>
+        /// <param name="nodes"></param>
+        /// <param name="linkData"></param>
+        public static void DirectedLine<TNode, TLink>( Graph<TNode, TLink> graph, IReadOnlyList<TNode> nodes, TLink linkData )
+        {
+            ArgCheck( graph, nodes, linkData );
+
+            for( int i = 0; i < nodes.Count - 1; i++ )
+            {
+                graph.AddLink( nodes[i], nodes[i + 1], linkData );
+            }
+        }
+
         private static void ArgCheck<TNode, TLink>( Graph<TNode, TLink> graph, IReadOnlyList<TNode> nodes, TLink linkData )
         {
             if( graph == null )
