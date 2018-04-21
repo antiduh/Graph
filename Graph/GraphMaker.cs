@@ -16,6 +16,8 @@ namespace Graph
         /// <param name="linkData"></param>
         public static void SimpleComplete<TNode, TLink>( Graph<TNode, TLink> graph, IReadOnlyList<TNode> nodes, TLink linkData )
         {
+            ArgCheck( graph, nodes, linkData );
+
             for( int start = 0; start < nodes.Count; start++ )
             {
                 for( int end = 0; end < nodes.Count; end++ )
@@ -40,9 +42,34 @@ namespace Graph
         /// <param name="linkData"></param>
         public static void BidiLine<TNode, TLink>( Graph<TNode, TLink> graph, IReadOnlyList<TNode> nodes, TLink linkData )
         {
+            ArgCheck( graph, nodes, linkData );
+
+            if( nodes.Count <= 1 )
+            {
+                throw new InvalidOperationException( "Cannot create a line topology with fewer than 2 nodes." );
+            }
+
             for( int i = 0; i < nodes.Count - 1; i++ )
             {
                 graph.AddDual( nodes[i], nodes[i + 1], linkData );
+            }
+        }
+
+        private static void ArgCheck<TNode, TLink>( Graph<TNode, TLink> graph, IReadOnlyList<TNode> nodes, TLink linkData )
+        {
+            if( graph == null )
+            {
+                throw new ArgumentNullException( nameof( graph ) );
+            }
+
+            if( nodes == null )
+            {
+                throw new ArgumentNullException( nameof( nodes ) );
+            }
+
+            if( linkData == null )
+            {
+                throw new ArgumentNullException( nameof( linkData ) );
             }
         }
     }
