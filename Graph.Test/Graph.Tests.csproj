@@ -52,24 +52,24 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Graph_AddDual.cs" />
-    <Compile Include="Graph_Disconnect.cs" />
-    <Compile Include="Graph_GetLink.cs" />
+    <Compile Include="GraphMaker\GraphMaker_BidiLine.cs" />
+    <Compile Include="Graph\Graph_AddDual.cs" />
+    <Compile Include="Graph\Graph_AddLink.cs" />
+    <Compile Include="Graph\Graph_AddNode.cs" />
+    <Compile Include="Graph\Graph_Constructor.cs" />
+    <Compile Include="Graph\Graph_Disconnect.cs" />
+    <Compile Include="Graph\Graph_DisconnectAll.cs" />
+    <Compile Include="Graph\Graph_GetClosedNetwork.cs" />
+    <Compile Include="Graph\Graph_GetLink.cs" />
+    <Compile Include="Graph\Graph_GetNeighbors.cs" />
+    <Compile Include="Graph\Graph_GetShortestPath.cs" />
+    <Compile Include="Graph\Graph_LoopbackScenarios.cs" />
+    <Compile Include="Graph\Graph_Remove.cs" />
+    <Compile Include="Graph\Graph_RemoveAll.cs" />
+    <Compile Include="Graph\Graph_RemoveLink.cs" />
+    <Compile Include="Graph\Graph_SetLink.cs" />
     <Compile Include="Harness\Assert2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Graph_Constructor.cs" />
-    <Compile Include="Graph_AddNode.cs" />
-    <Compile Include="Graph_AddLink.cs" />
-    <Compile Include="Graph_Remove.cs" />
-    <Compile Include="Graph_SetLink.cs" />
-    <Compile Include="Graph_DisconnectAll.cs" />
-    <Compile Include="Graph_RemoveAll.cs" />
-    <Compile Include="Graph_GetNeighbors.cs" />
-    <Compile Include="Graph_RemoveLink.cs" />
-    <Compile Include="Graph_LoopbackScenarios.cs" />
-    <Compile Include="Graph_GetClosedNetwork.cs" />
-    <Compile Include="Graph_GetShortestPath.cs" />
-    <Compile Include="GraphMaker_BidiLine.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Graph\Graph.csproj">
