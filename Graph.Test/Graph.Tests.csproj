@@ -69,6 +69,7 @@
     <Compile Include="Graph_LoopbackScenarios.cs" />
     <Compile Include="Graph_GetClosedNetwork.cs" />
     <Compile Include="Graph_GetShortestPath.cs" />
+    <Compile Include="GraphMaker_BidiLine.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Graph\Graph.csproj">
