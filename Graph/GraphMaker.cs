@@ -37,12 +37,12 @@ namespace Graph
         /// </remarks>
         /// <param name="graph"></param>
         /// <param name="nodes"></param>
-        /// <param name="v"></param>
-        public static void BidiLine( Graph<int, int> graph, IReadOnlyList<int> nodes, int v )
+        /// <param name="linkData"></param>
+        public static void BidiLine<TNode, TLink>( Graph<TNode, TLink> graph, IReadOnlyList<TNode> nodes, TLink linkData )
         {
             for( int i = 0; i < nodes.Count - 1; i++ )
             {
-                graph.AddDual( i, i + 1, 10 );
+                graph.AddDual( nodes[i], nodes[i + 1], linkData );
             }
         }
     }
