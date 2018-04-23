@@ -27,31 +27,13 @@ namespace Graph
         private Func<TLink, int> costFunc;
 
         /// <summary>
-        /// Stores a map from a node to a list of that node's outgoing links.
+        /// Stores a map from a node to a list of that node's incoming and outgoing links.
         /// </summary>
         /// <remarks>
-        /// Every node that is part of the graph is stored as a value in the outlinkMap, always with
-        /// a non-null list.
-        ///
-        /// The outlinkMap and the inlinkMap objects shall always refer to the same set of nodes and
-        /// links. If A's outlinks contains a link from A to B, then B's inlinks contains the same
-        /// link object (from A, to B).
+        /// Every node that is part of the graph is stored as a value in the nodeMap.
         /// </remarks>
-        private Dictionary<TNode, List<Link>> outlinkMap;
-
-        /// <summary>
-        /// Stores a map from a node to a list of that node's incoming links.
-        /// </summary>
-        /// <remarks>
-        /// Every node that is part of the graph is stored as a value in the inlinkMap, always with a
-        /// non-null list.
-        ///
-        /// The outlinkMap and the inlinkMap objects shall always refer to the same set of nodes and
-        /// links. If A's outlinks contains a link from A to B, then B's inlinks contains the same
-        /// link object (from A, to B).
-        /// </remarks>
-        private Dictionary<TNode, List<Link>> inlinkMap;
-
+        private Dictionary<TNode, LinkList> nodeMap;
+        
         /// <summary>
         /// Initializes a new instance of the Graph class.
         /// </summary>
@@ -60,8 +42,7 @@ namespace Graph
         {
             this.costFunc = costFunc;
 
-            this.outlinkMap = new Dictionary<TNode, List<Link>>();
-            this.inlinkMap = new Dictionary<TNode, List<Link>>();
+            this.nodeMap = new Dictionary<TNode, LinkList>();
         }
 
         /// <summary>
@@ -70,7 +51,7 @@ namespace Graph
         /// <param name="node">The node to add to the graph.</param>
         public void AddNode( TNode node )
         {
-            if( this.outlinkMap.ContainsKey( node ) )
+            if( this.nodeMap.ContainsKey( node ) )
             {
                 throw new InvalidOperationException(
                     "The given node already exists in the graph."
@@ -288,14 +269,10 @@ namespace Graph
         /// </summary>
         public void DisconnectAll()
         {
-            foreach( var linkList in this.outlinkMap.Values )
+            foreach( var linkList in this.nodeMap.Values )
             {
-                linkList.Clear();
-            }
-
-            foreach( var linkList in this.inlinkMap.Values )
-            {
-                linkList.Clear();
+                linkList.Outlinks.Clear();
+                linkList.Inlinks.Clear();
             }
         }
 
@@ -307,8 +284,7 @@ namespace Graph
         {
             Disconnect( node );
 
-            this.outlinkMap.Remove( node );
-            this.inlinkMap.Remove( node );
+            this.nodeMap.Remove( node );
         }
 
         /// <summary>
@@ -319,8 +295,7 @@ namespace Graph
             // Be nice to the GC.
             DisconnectAll();
 
-            this.outlinkMap.Clear();
-            this.inlinkMap.Clear();
+            this.nodeMap.Clear();
         }
 
         /// <summary>
@@ -328,14 +303,14 @@ namespace Graph
         /// </summary>
         public List<Link> GetOutlinks( TNode node )
         {
-            List<Link> outLinks;
+            LinkList linkList;
 
-            if( this.outlinkMap.TryGetValue( node, out outLinks ) == false )
+            if( this.nodeMap.TryGetValue( node, out linkList ) == false )
             {
                 throw new InvalidOperationException( "The node is not part of the graph." );
             }
 
-            return outLinks;
+            return linkList.Outlinks;
         }
 
         /// <summary>
@@ -345,14 +320,14 @@ namespace Graph
         /// <returns></returns>
         public List<Link> GetInLinks( TNode node )
         {
-            List<Link> inlinks;
+            LinkList linkList;
 
-            if( this.inlinkMap.TryGetValue( node, out inlinks ) == false )
+            if( this.nodeMap.TryGetValue( node, out linkList ) == false )
             {
                 throw new InvalidOperationException( "The node is not part of the graph." );
             }
 
-            return inlinks;
+            return linkList.Inlinks;
         }
 
         /// <summary>
@@ -361,7 +336,7 @@ namespace Graph
         /// <returns></returns>
         public List<TNode> GetNodes()
         {
-            return this.outlinkMap.Keys.ToList();
+            return this.nodeMap.Keys.ToList();
         }
 
         /// <summary>
@@ -662,17 +637,15 @@ namespace Graph
         /// </param>
         private void EnsureAdded( TNode node, bool knownMissing )
         {
-            List<Link> outLinks;
-            List<Link> inlinks;
+            LinkList linkList;
 
             // If we know it's missing, or we can't find it, create a new one.
-            if( knownMissing || this.outlinkMap.TryGetValue( node, out outLinks ) == false )
+            if( knownMissing || this.nodeMap.TryGetValue( node, out linkList ) == false )
             {
-                outLinks = new List<Link>();
-                this.outlinkMap.Add( node, outLinks );
+                linkList = new LinkList();
+                linkList.Init();
 
-                inlinks = new List<Link>();
-                this.inlinkMap.Add( node, inlinks );
+                this.nodeMap.Add( node, linkList );
             }
         }
 

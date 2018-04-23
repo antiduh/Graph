@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="Graph.cs" />
     <Compile Include="Graph.Link.cs" />
+    <Compile Include="Graph.LinkList.cs" />
     <Compile Include="GraphMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
