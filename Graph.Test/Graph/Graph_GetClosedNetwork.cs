@@ -236,6 +236,20 @@ namespace Graph.Tests
         [TestMethod]
         public void Graph_GetClosedNetwork_ConnectedNode_LineTopo()
         {
+            var graph = new Graph<int, int>( x => x );
+            int count = 100;
+
+            MakeBidiLine( graph, count );
+
+            var network = graph.GetClosedNetwork( 0 );
+
+            Assert.AreEqual( count, network.Count );
+
+            for( int i = 0; i < count; i++ )
+            {
+                Assert.IsTrue( network.Contains( i ) );
+            }
+
         }
 
         private void MakeSimpleComplete( Graph<int, int> graph, int numNodes )
