@@ -68,6 +68,7 @@
     <Compile Include="Graph\Graph_RemoveAll.cs" />
     <Compile Include="Graph\Graph_RemoveLink.cs" />
     <Compile Include="Graph\Graph_SetLink.cs" />
+    <Compile Include="Graph\Graph_GetOpenNetwork.cs" />
     <Compile Include="Harness\Assert2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
