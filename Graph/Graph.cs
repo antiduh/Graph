@@ -346,13 +346,10 @@ namespace Graph
         {
             List<TNode> neighbors = new List<TNode>();
 
-            var outlinks = GetOutlinks( node );
+            var links = this.nodeMap[node];
 
-            foreach( var outlink in outlinks )
+            foreach( var outlink in links.Outlinks )
             {
-                // We have a link from node --> peer.
-                // Verify we have a link peer --> node.
-
                 var peer = outlink.EndNode;
 
                 if( peer.Equals( node ) )
@@ -361,11 +358,13 @@ namespace Graph
                     continue; 
                 }
 
-                var peerOutlinks = GetOutlinks( peer );
-
-                if( FindLink( peerOutlinks, peer, node ) >= 0 )
+                foreach( var inlink in links.Inlinks )
                 {
-                    neighbors.Add( peer );
+                    if( inlink.StartNode.Equals( peer ) )
+                    {
+                        neighbors.Add( peer );
+                        break;
+                    }
                 }
             }
 
@@ -397,7 +396,6 @@ namespace Graph
         {
             HashSet<TNode> seen = new HashSet<TNode>();
             Queue<TNode> leads = new Queue<TNode>();
-            List<TNode> neighbors;
 
             leads.Enqueue( startingNode );
             seen.Add( startingNode );
@@ -405,14 +403,28 @@ namespace Graph
             while( leads.Count > 0 )
             {
                 var lead = leads.Dequeue();
+                var leadLinks = this.nodeMap[lead];
 
-                neighbors = GetNeighbors( lead );
+                // - Find all outlinks from the lead.
+                // - Trim the outlinks that contain seen nodes.
+                // - For all remaining nodes, verify that lead is bidi with the remaining node.
 
-                foreach( TNode neighbor in neighbors )
+                foreach( Link leadOutlink in leadLinks.Outlinks )
                 {
-                    if( seen.Add( neighbor ) )
+                    TNode peer = leadOutlink.EndNode;
+
+                    if( seen.Contains( peer ) )
                     {
-                        leads.Enqueue( neighbor );
+                        continue; 
+                    }
+
+                    foreach( var inlinks in leadLinks.Inlinks )
+                    {
+                        if( inlinks.StartNode.Equals( peer ) )
+                        {
+                            seen.Add( peer );
+                            break;
+                        }
                     }
                 }
             }
