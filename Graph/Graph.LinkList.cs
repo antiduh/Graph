@@ -10,9 +10,9 @@ namespace Graph
     {
         private struct LinkList
         {
-            public List<Link> Outlinks { get; private set; }
+            public List<Link> Outlinks;
 
-            public List<Link> Inlinks { get; private set; }
+            public List<Link> Inlinks;
 
             public void Init()
             {
