@@ -346,7 +346,12 @@ namespace Graph
         {
             List<TNode> neighbors = new List<TNode>();
 
-            var links = this.nodeMap[node];
+            LinkList links;
+
+            if( this.nodeMap.TryGetValue( node, out links ) == false )
+            {
+                throw new InvalidOperationException( "The node is not part of the graph." );
+            }
 
             foreach( var outlink in links.Outlinks )
             {
@@ -397,6 +402,11 @@ namespace Graph
             HashSet<TNode> seen = new HashSet<TNode>();
             Queue<TNode> leads = new Queue<TNode>();
 
+            if( this.nodeMap.ContainsKey( startingNode ) == false )
+            {
+                throw new InvalidOperationException( "The node is not part of the graph." );
+            }
+
             leads.Enqueue( startingNode );
             seen.Add( startingNode );
 
@@ -423,6 +433,7 @@ namespace Graph
                         if( inlinks.StartNode.Equals( peer ) )
                         {
                             seen.Add( peer );
+                            leads.Enqueue( peer );
                             break;
                         }
                     }
