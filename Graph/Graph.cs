@@ -481,6 +481,36 @@ namespace Graph
             return seen.ToList();
         }
 
+        public int GetDiameter()
+        {
+            // Strategy: 
+            // - Examine every possible shortest path.
+            // - Select the shortest path that is longer than all other shortest paths.
+
+            List<TNode> nodes = GetNodes();
+
+            int diameter = 0;
+
+            for( int startIndex = 0; startIndex < nodes.Count; startIndex++ )
+            {
+                for( int endIndex = startIndex + 1; endIndex < nodes.Count; endIndex++ )
+                {
+                    bool found;
+                    List<TNode> path;
+                    int cost;
+
+                    found = GetShortestPath( nodes[startIndex], nodes[endIndex], out path, out cost );
+
+                    if( found )
+                    {
+                        diameter = Math.Max( diameter, path.Count );
+                    }
+                }
+            }
+
+            return diameter;
+        }
+
         public bool GetShortestPath( TNode start, TNode end, out List<TNode> path, out int cost )
         {
             // Nodes are referred to by their node index in this implementation.
